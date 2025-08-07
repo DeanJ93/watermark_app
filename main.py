@@ -65,6 +65,11 @@ class WatermarkApp:
         self.image_options_frame = ttk.LabelFrame(left_panel, text="Image Watermark Options")
         ttk.Button(self.image_options_frame, text="Upload Logo/Image", command=self.upload_watermark_image).pack(fill=tk.X, padx=5, pady=5)
         
+        # Add size control for image watermark
+        ttk.Label(self.image_options_frame, text="Logo Size:").pack(anchor=tk.W, padx=5, pady=2)
+        ttk.Scale(self.image_options_frame, from_=10, to=100, variable=self.watermark_size, 
+                 orient=tk.HORIZONTAL).pack(fill=tk.X, padx=5, pady=2)
+        
         # Common watermark options
         common_options_frame = ttk.LabelFrame(left_panel, text="Watermark Settings")
         common_options_frame.pack(fill=tk.X, padx=5, pady=5)
@@ -122,7 +127,21 @@ class WatermarkApp:
         
         if file_path:
             self.watermark_path = file_path
-            messagebox.showinfo("Success", "Watermark image uploaded successfully!")
+            
+            # Show image info to user
+            try:
+                # Load image to get dimensions
+                watermark = Image.open(file_path)
+                width, height = watermark.size
+                filename = os.path.basename(file_path)
+                
+                # Provide feedback with image details
+                messagebox.showinfo("Watermark Uploaded", 
+                                   f"Image: {filename}\n"
+                                   f"Size: {width}×{height}px\n\n"
+                                   "You can adjust its size using the slider below.")
+            except Exception as e:
+                messagebox.showinfo("Success", "Watermark image uploaded successfully!")
     
     def choose_color(self):
         color = colorchooser.askcolor(initialcolor=self.watermark_color)
@@ -216,8 +235,12 @@ class WatermarkApp:
             img_width, img_height = result_image.size
             wm_width, wm_height = watermark.size
             
-            # Scale watermark to a reasonable size (25% of the image by default)
-            scale_factor = (img_width + img_height) / (wm_width + wm_height) * (self.watermark_size.get() / 60)
+            # Scale watermark based on user-selected size
+            # Use watermark_size slider value to determine scaling
+            base_scale = (img_width + img_height) / (wm_width + wm_height) * 0.25
+            user_scale_factor = self.watermark_size.get() / 50  # Map slider value to scale (50 = 100%)
+            scale_factor = base_scale * user_scale_factor
+            
             new_wm_width = int(wm_width * scale_factor)
             new_wm_height = int(wm_height * scale_factor)
             watermark = watermark.resize((new_wm_width, new_wm_height), Image.LANCZOS)
