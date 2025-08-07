@@ -123,4 +123,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-Created with ❤️ using Python and Tkinter
+## Development Note
+
+This application was developed with assistance from AI tools. While the core functionality, requirements definition, and testing were human-directed, AI was used to help generate some code portions, optimize implementation, and assist with documentation.
